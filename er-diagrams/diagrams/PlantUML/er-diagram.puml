@@ -1,125 +1,72 @@
-@startuml CBT_Journal_ER_Diagram
+@startuml CBT_Journal
 
-!define PK <b><color:red>PK</color></b>
-!define FK <b><color:blue>FK</color></b>
-!define UK <b><color:green>UK</color></b>
-
-entity "PSYCHOLOGIST" as psych {
-  PK psychologist_id : INT
-  UK email : VARCHAR(255)
-  password_hash : VARCHAR(255)
-  first_name : VARCHAR(100)
-  last_name : VARCHAR(100)
-  UK license_number : VARCHAR(50)
+entity "THERAPIST" as therapist {
+  * therapist_id : INTEGER <<PK>>
+  --
+  full_name : VARCHAR(255)
+  email : VARCHAR(255)
   specialization : VARCHAR(100)
-  created_at : TIMESTAMP
+  registration_date : DATE
 }
 
 entity "CLIENT" as client {
-  PK client_id : INT
-  UK email : VARCHAR(255)
-  password_hash : VARCHAR(255)
-  first_name : VARCHAR(100)
-  last_name : VARCHAR(100)
+  * client_id : INTEGER <<PK>>
+  --
+  full_name : VARCHAR(255)
+  email : VARCHAR(255)
   birth_date : DATE
-  FK psychologist_id : INT
-  created_at : TIMESTAMP
+  registration_date : DATE
 }
 
 entity "SESSION" as session {
-  PK session_id : INT
-  FK client_id : INT
-  FK psychologist_id : INT
-  scheduled_at : TIMESTAMP
-  duration_minutes : INT
-  status : ENUM('scheduled', 'completed', 'cancelled')
-  session_type : ENUM('initial', 'regular', 'final')
-  created_at : TIMESTAMP
-}
-
-entity "SESSION_NOTE" as note {
-  PK note_id : INT
-  FK session_id : INT
-  content : TEXT
-  homework_assigned : TEXT
-  created_at : TIMESTAMP
+  * session_id : INTEGER <<PK>>
+  --
+  * therapist_id : INTEGER <<FK>>
+  * client_id : INTEGER <<FK>>
+  session_date : DATETIME
+  duration_minutes : INTEGER
+  notes : TEXT
+  session_type : VARCHAR(50)
 }
 
 entity "THOUGHT_RECORD" as thought {
-  PK record_id : INT
-  FK client_id : INT
-  recorded_at : TIMESTAMP
-  situation : VARCHAR(500)
+  * record_id : INTEGER <<PK>>
+  --
+  * client_id : INTEGER <<FK>>
+  record_date : DATETIME
+  situation : TEXT
   automatic_thought : TEXT
   emotion : VARCHAR(100)
-  emotion_intensity : INT
-  rational_response : TEXT
-  new_emotion_intensity : INT
-  created_at : TIMESTAMP
+  emotion_intensity : INTEGER
+  alternative_thought : TEXT
 }
 
 entity "MOOD_ENTRY" as mood {
-  PK mood_id : INT
-  FK client_id : INT
-  recorded_at : TIMESTAMP
-  mood_score : INT
-  notes : TEXT
-  activities : VARCHAR(500)
-}
-
-entity "EXERCISE" as exercise {
-  PK exercise_id : INT
-  FK psychologist_id : INT
-  title : VARCHAR(200)
-  description : TEXT
-  category : ENUM('thought-challenging', 'behavioral', 'relaxation')
-  instructions : TEXT
-  created_at : TIMESTAMP
-}
-
-entity "EXERCISE_COMPLETION" as completion {
-  PK completion_id : INT
-  FK exercise_id : INT
-  FK client_id : INT
-  completed_at : TIMESTAMP
-  response : TEXT
-  difficulty_rating : INT
+  * mood_id : INTEGER <<PK>>
+  --
+  * client_id : INTEGER <<FK>>
+  entry_date : DATETIME
+  mood_score : INTEGER
   notes : TEXT
 }
 
-entity "MESSAGE" as message {
-  PK message_id : INT
-  FK sender_id : INT
-  sender_type : ENUM('psychologist', 'client')
-  FK recipient_id : INT
-  recipient_type : ENUM('psychologist', 'client')
-  content : TEXT
-  sent_at : TIMESTAMP
-  is_read : BOOLEAN
-}
-
-entity "GOAL" as goal {
-  PK goal_id : INT
-  FK client_id : INT
-  title : VARCHAR(200)
+entity "ASSIGNMENT" as assignment {
+  * assignment_id : INTEGER <<PK>>
+  --
+  * therapist_id : INTEGER <<FK>>
+  * client_id : INTEGER <<FK>>
+  title : VARCHAR(255)
   description : TEXT
-  target_date : DATE
-  status : ENUM('active', 'achieved', 'abandoned')
-  created_at : TIMESTAMP
+  assigned_date : DATE
+  due_date : DATE
+  status : VARCHAR(20)
 }
 
-' Relationships
-psych ||--o{ client : "supervises"
-psych ||--o{ session : "conducts"
-client ||--o{ session : "attends"
-session ||--|| note : "documents"
-client ||--o{ thought : "creates"
-client ||--o{ mood : "tracks"
-psych ||--o{ exercise : "assigns"
-exercise ||--o{ completion : "spawns"
-client ||--o{ completion : "completes"
-client ||--o{ message : "sends/receives"
-psych ||--o{ message : "sends/receives"
-client ||--o{ goal : "defines"
+therapist ||--o{ session : "проводить"
+client ||--o{ session : "відвідує"
+client ||--o{ thought : "веде"
+client ||--o{ mood : "записує"
+therapist ||--o{ assignment : "призначає"
+client ||--o{ assignment : "виконує"
 
 @enduml

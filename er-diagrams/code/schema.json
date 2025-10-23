@@ -1,0 +1,267 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CBT Journal Data Schema",
+  "description": "Schema for CBT (Cognitive Behavioral Therapy) Journal System",
+  
+  "definitions": {
+    "Psychologist": {
+      "type": "object",
+      "properties": {
+        "psychologist_id": {
+          "type": "integer",
+          "description": "Primary key"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Unique email address"
+        },
+        "password_hash": {
+          "type": "string",
+          "minLength": 60,
+          "description": "Hashed password"
+        },
+        "first_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "last_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "license_number": {
+          "type": "string",
+          "description": "Unique professional license number"
+        },
+        "specialization": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["psychologist_id", "email", "password_hash", "first_name", "last_name", "license_number", "created_at"]
+    },
+    
+    "Client": {
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "integer",
+          "description": "Primary key"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Unique email address"
+        },
+        "password_hash": {
+          "type": "string",
+          "minLength": 60
+        },
+        "first_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "last_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "birth_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "psychologist_id": {
+          "type": "integer",
+          "description": "Foreign key to Psychologist"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["client_id", "email", "password_hash", "first_name", "last_name", "psychologist_id", "created_at"]
+    },
+    
+    "Session": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "Primary key"
+        },
+        "client_id": {
+          "type": "integer",
+          "description": "Foreign key to Client"
+        },
+        "psychologist_id": {
+          "type": "integer",
+          "description": "Foreign key to Psychologist"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 15,
+          "maximum": 180,
+          "default": 50
+        },
+        "status": {
+          "type": "string",
+          "enum": ["scheduled", "completed", "cancelled"]
+        },
+        "session_type": {
+          "type": "string",
+          "enum": ["initial", "regular", "final"]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["session_id", "client_id", "psychologist_id", "scheduled_at", "status", "session_type", "created_at"]
+    },
+    
+    "SessionNote": {
+      "type": "object",
+      "properties": {
+        "note_id": {
+          "type": "integer",
+          "description": "Primary key"
+        },
+        "session_id": {
+          "type": "integer",
+          "description": "Foreign key to Session (unique)"
+        },
+        "content": {
+          "type": "string",
+          "description": "Note content from the session"
+        },
+        "homework_assigned": {
+          "type": "string",
+          "description": "Homework tasks assigned to client"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["note_id", "session_id", "created_at"]
+    },
+    
+    "ThoughtRecord": {
+      "type": "object",
+      "properties": {
+        "record_id": {
+          "type": "integer",
+          "description": "Primary key"
+        },
+        "client_id": {
+          "type": "integer",
+          "description": "Foreign key to Client"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "situation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Description of the situation"
+        },
+        "automatic_thought": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Automatic negative thought"
+        },
+        "emotion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Emotion experienced"
+        },
+        "emotion_intensity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Intensity of emotion before cognitive restructuring"
+        },
+        "rational_response": {
+          "type": "string",
+          "description": "Rational/balanced thought response"
+        },
+        "new_emotion_intensity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Intensity of emotion after cognitive restructuring"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["record_id", "client_id", "recorded_at", "situation", "automatic_thought", "emotion", "emotion_intensity", "created_at"]
+    },
+    
+    "MoodEntry": {
+      "type": "object",
+      "properties": {
+        "mood_id": {
+          "type": "integer",
+          "description": "Primary key"
+        },
+        "client_id": {
+          "type": "integer",
+          "description": "Foreign key to Client"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "mood_score": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Overall mood rating (1=worst, 10=best)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes about mood"
+        },
+        "activities": {
+          "type": "string",
+          "description": "Comma-separated list of activities"
+        }
+      },
+      "required": ["mood_id", "client_id", "recorded_at", "mood_score"]
+    },
+    
+    "Exercise": {
+      "type": "object",
+      "properties": {
+        "exercise_id": {
+          "type": "integer",
+          "description": "Primary key"
+        },
+        "psychologist_id": {
+          "type": "integer",
+          "description": "Foreign key to Psychologist"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "description": {
+          "type": "string"
+        },
