@@ -1,0 +1,99 @@
+@startuml CBT_Journal_Use_Case
+
+left to right direction
+skinparam packageStyle rectangle
+
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor DarkSlateGray
+    ArrowColor DarkSlateGray
+}
+
+actor "Клієнт" as Client
+actor "Психотерапевт" as Therapist
+actor "Адміністратор\nсистеми" as Admin
+
+actor " Email сервіс" as Email
+actor " SMS сервіс" as SMS
+actor " Система\nаналітики" as Analytics
+
+rectangle "CBT Журнал" {
+    
+    usecase "Авторизуватися\nв системі" as UC1
+    usecase "Створити запис\nдумки" as UC2
+    usecase "Записати настрій" as UC3
+    usecase "Переглянути\nісторію записів" as UC4
+    usecase "Переглянути\nпризначені завдання" as UC5
+    usecase "Відмітити завдання\nвиконаним" as UC6
+    usecase "Переглянути\nмайбутні сесії" as UC7
+    usecase "Подати запит на\nкризову сесію" as UC8
+    
+    usecase "Переглянути список\nклієнтів" as UC9
+    usecase "Переглянути\nпрофіль клієнта" as UC10
+    usecase "Призначити завдання\nклієнту" as UC11
+    usecase "Створити нотатки\nпро сесію" as UC12
+    usecase "Запланувати сесію" as UC13
+    usecase "Переглянути динаміку\nнастрою клієнта" as UC14
+    usecase "Згенерувати звіт\nпро прогрес" as UC15
+    
+    usecase "Керувати\nкористувачами" as UC16
+    usecase "Переглянути\nсистемні логи" as UC17
+    usecase "Налаштувати\nпараметри системи" as UC18
+    
+    usecase "Валідувати\nінтенсивність емоції" as UC19
+    usecase "Надіслати\nнагадування" as UC20
+    usecase "Проаналізувати\nпаттерни" as UC21
+    
+    usecase "Додати альтернативну\nдумку" as UC22
+    usecase "Додати коментар\nдо настрою" as UC23
+
+    usecase "Надіслати нагадування\nпро сесію" as UC24
+    usecase "Надіслати тижневий\nзвіт" as UC25
+    usecase "Надіслати екстрене\nповідомлення" as UC26
+    usecase "Проаналізувати\nемоційні паттерни" as UC27
+}
+
+Client --> UC1
+Client --> UC2
+Client --> UC3
+Client --> UC4
+Client --> UC5
+Client --> UC6
+Client --> UC7
+Client --> UC8
+
+Therapist --> UC1
+Therapist --> UC9
+Therapist --> UC10
+Therapist --> UC11
+Therapist --> UC12
+Therapist --> UC13
+Therapist --> UC14
+Therapist --> UC15
+
+Admin --> UC1
+Admin --> UC16
+Admin --> UC17
+Admin --> UC18
+
+UC2 .> UC19 : <<include>>
+UC11 .> UC20 : <<include>>
+UC13 .> UC20 : <<include>>
+UC14 .> UC21 : <<include>>
+
+UC22 .> UC2 : <<extend>>
+UC23 .> UC3 : <<extend>>
+UC8 .> UC7 : <<extend>>
+
+UC20 --> UC24
+UC24 --> Email
+UC25 --> Email
+
+UC26 --> SMS
+UC8 --> UC26
+
+UC21 --> UC27
+UC27 --> Analytics
+
+@enduml
