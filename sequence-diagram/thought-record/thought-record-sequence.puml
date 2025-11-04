@@ -1,0 +1,143 @@
+@startuml UC01_CreateThoughtRecord
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title UC-01: Створити запис думки (Create Thought Record)
+
+actor "Клієнт" as Client #lightblue
+participant "UI:\nМобільний додаток" as UI #lightgreen
+participant "API:\nThoughtController" as Controller #lightyellow
+participant "Сервіс:\nThoughtService" as Service #lightcoral
+participant "Сервіс:\nValidationService" as Validator #pink
+participant "Сервіс:\nEncryptionService" as Encryption #lavender
+participant "БД:\nPostgreSQL" as DB #lightgray
+participant "Сервіс:\nAnalyticsService" as Analytics #lightcyan
+
+== Передумови: Клієнт авторизований ==
+
+Client -> UI: Натискає "Новий запис думки"
+activate UI
+
+UI -> UI: Відображає форму запису
+UI --> Client: Показує форму з полями
+
+note right of Client
+  Поля форми:
+  - Ситуація (текст)
+  - Автоматична думка (текст)
+  - Емоція (текст)
+  - Інтенсивність (1-10)
+end note
+
+Client -> UI: Заповнює форму та натискає "Зберегти"
+UI -> UI: Збирає дані з форми
+
+== Валідація на клієнті ==
+
+UI -> UI: Перевіряє заповненість полів
+
+alt Поля не заповнені
+    UI --> Client: Показує помилку "Заповніть всі поля"
+    note right of UI
+        Альтернативний сценарій:
+        Валідація не пройдена
+    end note
+else Всі поля заповнені
+    
+    UI -> Controller: POST /api/thoughts\n{\n  situation,\n  automatic_thought,\n  emotion,\n  emotion_intensity\n}
+    activate Controller
+    
+    == Валідація на сервері ==
+    
+    Controller -> Validator: validateThoughtRecord(data)
+    activate Validator
+    
+    Validator -> Validator: Перевіряє формат даних
+    
+    alt Інтенсивність поза діапазоном [1-10]
+        Validator --> Controller: ValidationError:\n"Інтенсивність має бути 1-10"
+        Controller --> UI: 400 Bad Request\n{"error": "Invalid intensity"}
+        UI --> Client: Показує помилку валідації
+        note right of Validator
+            Альтернативний сценарій:
+            UC-03 не пройдено
+        end note
+    else Дані валідні
+        Validator --> Controller: ValidationResult: OK
+        deactivate Validator
+        
+        Controller -> Service: createThoughtRecord(\n  clientId,\n  thoughtData\n)
+        activate Service
+        
+        == Шифрування чутливих даних ==
+        
+        Service -> Encryption: encrypt(situation, automatic_thought)
+        activate Encryption
+        
+        Encryption -> Encryption: AES-256 шифрування
+        Encryption --> Service: encryptedData
+        deactivate Encryption
+        
+        note right of Service
+            Відповідає NFR-03:
+            Шифрування за AES-256
+        end note
+        
+        == Збереження в БД ==
+        
+        Service -> DB: INSERT INTO thought_record\n(\n  client_id,\n  situation_encrypted,\n  thought_encrypted,\n  emotion,\n  emotion_intensity,\n  record_date\n)
+        activate DB
+        
+        DB -> DB: Зберігає запис
+        DB --> Service: recordId: 143
+        deactivate DB
+        
+        == Асинхронна аналітика ==
+        
+        Service ->> Analytics: queueForAnalysis(recordId)
+        activate Analytics
+        note right of Analytics
+            Асинхронно:
+            Аналіз емоційних паттернів
+            для UC-15
+        end note
+        Analytics -> Analytics: Додає в чергу обробки
+        deactivate Analytics
+        
+        Service --> Controller: ThoughtRecord object\n(з recordId: 143)
+        deactivate Service
+        
+        Controller --> UI: 201 Created\n{\n  "recordId": 143,\n  "message": "Запис успішно збережено"\n}
+        deactivate Controller
+        
+        UI -> UI: Оновлює локальне сховище
+        UI --> Client: Показує повідомлення:\n"✓ Запис успішно збережено"
+        
+        deactivate UI
+        
+        note right of Client
+            Постумови:
+            - Запис збережено в БД
+            - Дані зашифровані
+            - Доступний для UC-04
+            - Доступний терапевту (UC-13)
+        end note
+    end
+end
+
+== Опціональне розширення: UC-02 ==
+
+opt Клієнт може додати альтернативну думку пізніше
+    Client -> UI: Відкриває запис #143
+    Client -> UI: Додає альтернативну думку
+    UI -> Controller: PATCH /api/thoughts/143\n{"alternative_thought": "..."}
+    Controller -> Service: updateAlternativeThought(143, text)
+    Service -> DB: UPDATE thought_record\nSET alternative_thought = ...
+    DB --> Service: OK
+    Service --> Controller: Updated record
+    Controller --> UI: 200 OK
+    UI --> Client: "✓ Альтернативна думка додана"
+end
+
+@enduml
