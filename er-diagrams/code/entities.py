@@ -52,7 +52,7 @@ class Client:
     def __str__(self) -> str:
         return f"Клієнт #{self.client_id}: {self.full_name}"
     
-    def get_age(self) -> int:
+    def calculateAge(self) -> int:
         today = date.today()
         return today.year - self.birth_date.year - (
             (today.month, today.day) < (self.birth_date.month, self.birth_date.day)
@@ -100,7 +100,7 @@ class ThoughtRecord:
         return (f"Запис думки #{self.record_id}: {self.emotion} "
                 f"({self.emotion_intensity}/10)")
     
-    def is_processed(self) -> bool:
+    def isProcessed(self) -> bool:
         """Перевіряє, чи клієнт опрацював думку (чи є альтернативна думка)"""
         return self.alternative_thought is not None and len(self.alternative_thought) > 0
 
@@ -122,7 +122,7 @@ class MoodEntry:
         date_str = self.entry_date.strftime('%d.%m.%Y %H:%M')
         return f"Настрій {self.mood_score}/10 ({date_str})"
     
-    def get_mood_label(self) -> str:
+    def getMoodLabel(self) -> str:
         """Повертає текстовий опис настрою на основі оцінки"""
         if self.mood_score <= 3:
             return "Дуже погано"
@@ -156,11 +156,11 @@ class Assignment:
     def __str__(self) -> str:
         return f"Завдання #{self.assignment_id}: {self.title} [{self.status.value}]"
     
-    def is_overdue(self) -> bool:
+    def isOverdue(self) -> bool:
         """Перевіряє, чи прострочене завдання"""
         return date.today() > self.due_date and self.status != AssignmentStatus.COMPLETED
     
-    def days_until_due(self) -> int:
+    def daysUntilDue(self) -> int:
         """Скільки днів залишилось до дедлайну"""
         return (self.due_date - date.today()).days
 
@@ -184,7 +184,7 @@ if __name__ == "__main__":
         birth_date=date(1990, 3, 15),
         registration_date=date(2025, 9, 10)
     )
-    print(f"✓ {client}, вік: {client.get_age()} років")
+    print(f"✓ {client}, вік: {client.calculateAge()} років")
 
     session = Session(
         session_id=101,
@@ -208,7 +208,7 @@ if __name__ == "__main__":
         alternative_thought="Я в укритті. Сирена — це попередження, а не гарантія небезпеки."
     )
     print(f"✓ {thought}")
-    print(f"  Опрацьовано: {'Так' if thought.is_processed() else 'Ні'}")
+    print(f"  Опрацьовано: {'Так' if thought.isProcessed() else 'Ні'}")
     
     mood = MoodEntry(
         mood_id=1,
@@ -217,7 +217,7 @@ if __name__ == "__main__":
         mood_score=4,
         notes="Прокинувся з тривогою, важко зосередитися"
     )
-    print(f"✓ {mood} - {mood.get_mood_label()}")
+    print(f"✓ {mood} - {mood.getMoodLabel()}")
     
     assignment = Assignment(
         assignment_id=10,
@@ -230,7 +230,7 @@ if __name__ == "__main__":
         status=AssignmentStatus.PENDING
     )
     print(f"✓ {assignment}")
-    print(f"  Днів до дедлайну: {assignment.days_until_due()}")
-    print(f"  Прострочене: {'Так' if assignment.is_overdue() else 'Ні'}")
+    print(f"  Днів до дедлайну: {assignment.daysUntilDue()}")
+    print(f"  Прострочене: {'Так' if assignment.isOverdue() else 'Ні'}")
     
     print("\n ЗАРВЕРШЕНО")
