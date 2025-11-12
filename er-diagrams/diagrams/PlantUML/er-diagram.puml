@@ -62,11 +62,11 @@ entity "ASSIGNMENT" as assignment {
   status : VARCHAR(20)
 }
 
-therapist ||--o{ session : "проводить"
-client ||--o{ session : "відвідує"
-client ||--o{ thought : "веде"
-client ||--o{ mood : "записує"
-therapist ||--o{ assignment : "призначає"
-client ||--o{ assignment : "виконує"
+therapist "1" --> "0..*" session : проводить
+client "1" --> "0..*" session : відвідує
+client "1" --> "0..*" thought : веде
+client "1" --> "0..*" mood : записує
+therapist "1" --> "0..*" assignment : призначає
+client "1" --> "0..*" assignment : виконує
 
 @enduml
