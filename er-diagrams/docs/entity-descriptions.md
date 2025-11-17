@@ -1,18 +1,25 @@
-1. ER-діаграма (Нотація Чена)
+## [PlantUML](https://github.com/luvremak/mavpz/tree/main/er-diagrams/diagrams/PlantUML)
 
-2. ER-діаграма (Crow's Foot)
 
-3. Декларативний опис
+## [ER-діаграма (нотація Чена)](https://github.com/luvremak/mavpz/blob/main/er-diagrams/diagrams/er-chen-notation/image.png)
 
-4. Відображення у коді
 
-Пояснення зв'язків між сутностями
+## [ER-діаграма (Crow's Foot)](https://github.com/luvremak/mavpz/blob/main/er-diagrams/diagrams/er-crows-foot/image.png)
 
-Зв'язки "один до багатьох":
 
-Therapist → Session: Один терапевт проводить багато сесій
-Client → Session: Один клієнт відвідує багато сесій
-Client → ThoughtRecord: Один клієнт веде багато записів думок
-Client → MoodEntry: Один клієнт робить багато записів настрою
-Therapist → Assignment: Один терапевт призначає багато завдань
-Client → Assignment: Один клієнт отримує багато завдань
+## [Декларативний опис](https://github.com/luvremak/mavpz/blob/main/er-diagrams/diagrams/%D0%9E%D0%BF%D0%B8%D1%81%20ER-%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%96.pdf)
+
+
+## [Відображення у коді](https://github.com/luvremak/mavpz/blob/main/er-diagrams/code/entities.py)
+
+
+## Пояснення зв'язків між сутностями
+
+### Зв'язки «один до багатьох»
+
+- **Therapist → Session**: один терапевт проводить багато сесій.  
+- **Client → Session**: один клієнт відвідує багато сесій.  
+- **Client → ThoughtRecord**: один клієнт веде багато записів думок.  
+- **Client → MoodEntry**: один клієнт робить багато записів настрою.  
+- **Therapist → Assignment**: один терапевт призначає багато завдань.  
+- **Client → Assignment**: один клієнт отримує багато завдань.
