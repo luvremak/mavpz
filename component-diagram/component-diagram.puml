@@ -1,0 +1,89 @@
+@startuml
+' ==================== VISUAL SETTINGS ====================
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+left to right direction
+
+title Component Diagram – CBT Journal System
+
+' ==================== CLIENT LAYER ====================
+package "Client Layer" {
+    [Mobile App] as UI_Mobile
+    [Web Dashboard] as UI_Web
+}
+
+' ==================== SYSTEM BOUNDARY ====================
+package "CBT Journal System" <<System Boundary>> {
+
+    ' ---------- API LAYER ----------
+    package "API Layer" {
+        [API Gateway] as Gateway
+        interface "REST API" as API_Int
+        Gateway -() API_Int : provides
+    }
+
+    ' ---------- CORE SERVICES ----------
+    package "Core Business Logic" {
+        [Therapy Service] as TherapySvc
+        [Analytics Service] as AnalyticsSvc
+        [Identity Service] as AuthSvc
+    }
+
+    ' ---------- SHARED SERVICES ----------
+    package "Shared Services" {
+        [Encryption Component] as Encrypt
+        [Notification Manager] as NotifMgr
+        [Audit Logger] as Logger
+    }
+
+    ' ---------- DATA ACCESS ----------
+    package "Data Access Layer" {
+        [Repository Layer] as Repo
+        interface "DB Interface" as DB_Int
+        Repo -() DB_Int : provides
+    }
+
+    database "PostgreSQL" as DB
+}
+
+' ==================== EXTERNAL SYSTEMS ====================
+package "External Systems" {
+    [Email Service (SMTP)] as EmailExt
+    [SMS Gateway] as SMSExt
+    [Cloud Backup Storage] as BackupExt
+}
+
+' ==================== CONNECTIONS ====================
+
+' Clients → API
+UI_Mobile --> API_Int : HTTP/JSON
+UI_Web --> API_Int : HTTP/JSON
+
+' API → Services
+Gateway --> AuthSvc : REST
+Gateway --> TherapySvc : REST
+
+' Services → Shared
+TherapySvc ..> Encrypt : AES-256
+TherapySvc ..> AnalyticsSvc : Async Events
+TherapySvc ..> NotifMgr : Internal Call
+AuthSvc ..> Logger : Audit Events
+
+' Services → Data
+TherapySvc --> Repo : CRUD
+AnalyticsSvc --> Repo : Read
+AuthSvc --> Repo : Auth Data
+Logger --> Repo : Logs
+Repo --> DB_Int : DB Query
+DB_Int --> DB
+
+' Notifications → External
+NotifMgr --> EmailExt : SMTP
+NotifMgr --> SMSExt : SMS API
+
+' Backup
+DB --> BackupExt : Scheduled Backup (03:00)
+
+@enduml
